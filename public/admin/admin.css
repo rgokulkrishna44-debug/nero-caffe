@@ -48,3 +48,9 @@ th { color:var(--soft); font-weight:400; font-size:.75rem; letter-spacing:.1em; 
 .stack { display:flex; flex-direction:column; gap:.9rem; }
 .toast { position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--surface); border:1px solid var(--accent); padding:.6rem 1.2rem; border-radius:999px; margin:0; }
 @media (max-width:640px) { main { padding:1rem; } .mrow { grid-template-columns:1fr 5rem; } th:nth-child(n+5),td:nth-child(n+5){ } }
+
+/* Today tab: give the tables card more room so action buttons stay inside it */
+#tab-today .two { grid-template-columns:minmax(0,1.75fr) minmax(16rem,1fr); }
+#today-list { overflow-x:auto; }
+.acts .btn { white-space:nowrap; }
+@media (max-width:900px) { #tab-today .two { grid-template-columns:1fr; } }
