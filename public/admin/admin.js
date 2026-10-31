@@ -71,16 +71,8 @@
     current = tab;
     [].forEach.call(document.querySelectorAll("#tabs button"), function (b) { b.classList.toggle("on", b.dataset.tab === tab); });
     [].forEach.call(document.querySelectorAll(".tab"), function (s) { s.hidden = s.id !== "tab-" + tab; });
-    var load = { today: loadToday, bookings: loadBookings, orders: loadOrders, menu: loadMenu, settings: loadSettings }[tab];
+    var load = { today: loadToday, bookings: loadBookings, menu: loadMenu, settings: loadSettings }[tab];
     load(quiet);
-    if (tab !== "orders") badge();
-  }
-
-  function badge() {
-    api("GET", "/api/admin/stats").then(function (s) {
-      $("order-badge").hidden = !s.openOrders;
-      $("order-badge").textContent = s.openOrders;
-    }).catch(fail);
   }
 
   /* ---------- today ---------- */
@@ -90,7 +82,6 @@
       k.innerHTML = "";
       [
         [s.bookingsToday, "Bookings today"], [s.coversToday, "Covers today"],
-        [s.openOrders, "Open pickup orders"], ["₹" + s.orderSalesToday, "Pickup sales today (" + s.ordersToday + ")"],
         [s.noShowRate + "%", "No-show rate"],
       ].forEach(function (p) {
         var d = h("div", "kpi");
@@ -123,7 +114,7 @@
       tr.appendChild(h("td", null, r.time));
       var who = h("td");
       who.appendChild(h("div", null, r.name));
-      who.appendChild(h("small", "hint", r.phone + (r.occasion ? " · " + r.occasion : "") + " · " + r.ref));
+      who.appendChild(h("small", "hint", (r.email || r.phone) + (r.occasion ? " · " + r.occasion : "") + " · " + r.ref));
       if (r.note) who.appendChild(h("div", "hint", "Note: " + r.note));
       tr.appendChild(who);
       tr.appendChild(h("td", null, String(r.guests)));
@@ -156,47 +147,6 @@
   }
   $("b-from").addEventListener("change", loadBookings);
   $("b-status").addEventListener("change", loadBookings);
-
-  /* ---------- orders ---------- */
-  var NEXT = { new: ["Start", "preparing"], preparing: ["Ready", "ready"], ready: ["Collected", "collected"] };
-  function loadOrders() {
-    api("GET", "/api/admin/orders" + ($("o-all").checked ? "?scope=all" : "")).then(function (orders) {
-      var open = orders.filter(function (o) { return NEXT[o.status]; }).length;
-      $("order-badge").hidden = !open;
-      $("order-badge").textContent = open;
-      var board = $("o-board");
-      board.innerHTML = "";
-      if (!orders.length) { board.appendChild(h("p", "empty", "No open orders.")); return; }
-      orders.forEach(function (o) {
-        var c = h("div", "order");
-        var head = h("header");
-        head.appendChild(h("b", null, o.pickup));
-        head.appendChild(pill(o.status));
-        c.appendChild(head);
-        c.appendChild(h("div", "meta", o.name + " · " + o.phone + " · " + o.ref + (o.pickupDate !== localISO(new Date()) ? " · " + fmtDate(o.pickupDate) : "")));
-        var ul = h("ul");
-        o.items.forEach(function (i) { ul.appendChild(h("li", null, i.qty + " × " + i.name)); });
-        c.appendChild(ul);
-        if (o.note) c.appendChild(h("div", "note", "Note: " + o.note));
-        c.appendChild(h("div", "meta", "Total ₹" + o.total + ", pay at counter"));
-        var acts = h("div", "acts");
-        if (NEXT[o.status]) {
-          var go1 = h("button", "btn sm", NEXT[o.status][0]);
-          go1.addEventListener("click", function () { setOrder(o.ref, NEXT[o.status][1]); });
-          acts.appendChild(go1);
-          var no = h("button", "btn sm bad", "Cancel");
-          no.addEventListener("click", function () { setOrder(o.ref, "cancelled"); });
-          acts.appendChild(no);
-        }
-        c.appendChild(acts);
-        board.appendChild(c);
-      });
-    }).catch(fail);
-  }
-  function setOrder(ref, status) {
-    api("PATCH", "/api/admin/orders/" + ref, { status: status }).then(loadOrders).catch(fail);
-  }
-  $("o-all").addEventListener("change", loadOrders);
 
   /* ---------- menu ---------- */
   function loadMenu(quiet) {

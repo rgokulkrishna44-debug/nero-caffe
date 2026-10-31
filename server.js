@@ -48,15 +48,15 @@ function makeRef(prefix) {
   return prefix + "-" + s;
 }
 
-// Returns "+91XXXXXXXXXX" for a valid Indian mobile number, otherwise "".
-function indianMobile(raw) {
-  const digits = String(raw || "").replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, "");
-  return /^[6-9]\d{9}$/.test(digits) ? "+91" + digits : "";
+// Returns the trimmed address when it looks like an email, otherwise "".
+function validEmail(raw) {
+  const v = String(raw || "").trim();
+  return v.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? v : "";
 }
 
 const clean = (v, max) => String(v == null ? "" : v).trim().slice(0, max);
 const rowToReservation = (r) => ({
-  ref: r.ref, name: r.name, phone: r.phone, date: r.date, time: r.time, guests: r.guests,
+  ref: r.ref, name: r.name, email: r.email, phone: r.phone, date: r.date, time: r.time, guests: r.guests,
   occasion: r.occasion, note: r.note, status: r.status, createdAt: r.created_at,
 });
 
@@ -95,13 +95,13 @@ app.get("/api/availability", (req, res) => {
 });
 
 app.post("/api/reservations", (req, res) => {
-  const { name, phone, date, time, guests, occasion, note } = req.body || {};
+  const { name, email, date, time, guests, occasion, note } = req.body || {};
 
-  if (!name || !phone || !date || !time || !guests) {
-    return res.status(400).json({ error: "Name, WhatsApp number, date, time and guests are required." });
+  if (!name || !email || !date || !time || !guests) {
+    return res.status(400).json({ error: "Name, email, date, time and guests are required." });
   }
-  const mobile = indianMobile(phone);
-  if (!mobile) return res.status(400).json({ error: "Please enter a valid 10-digit Indian mobile number." });
+  const guestEmail = validEmail(email);
+  if (!guestEmail) return res.status(400).json({ error: "Please enter a valid email address." });
   const guestCount = Number(guests);
   if (!Number.isInteger(guestCount) || guestCount < 1 || guestCount > CFG.MAX_GUESTS) {
     return res.status(400).json({ error: "Online bookings are for 1 to 8 guests. Call us for larger groups." });
@@ -130,12 +130,12 @@ app.post("/api/reservations", (req, res) => {
       do ref = makeRef("NR");
       while (db.prepare("SELECT 1 FROM reservations WHERE ref = ?").get(ref));
       const r = {
-        ref, name: clean(name, 80), phone: mobile, date, time, guests: guestCount,
+        ref, name: clean(name, 80), email: guestEmail, phone: "", date, time, guests: guestCount,
         occasion: clean(occasion, 40), note: clean(note, 300), status: "confirmed", created_at: new Date().toISOString(),
       };
       db.prepare(
-        `INSERT INTO reservations(ref, name, phone, date, time, guests, occasion, note, status, created_at)
-         VALUES(@ref, @name, @phone, @date, @time, @guests, @occasion, @note, @status, @created_at)`
+        `INSERT INTO reservations(ref, name, email, phone, date, time, guests, occasion, note, status, created_at)
+         VALUES(@ref, @name, @email, @phone, @date, @time, @guests, @occasion, @note, @status, @created_at)`
       ).run(r);
       return r;
     });
@@ -151,64 +151,6 @@ app.post("/api/reservations", (req, res) => {
   res.status(201).json({ ok: true, ref: out.ref, reservation: out });
 });
 
-// ---------- public: order ahead (pickup) ----------
-
-app.post("/api/orders", (req, res) => {
-  const { name, phone, pickup, items, note } = req.body || {};
-  const mobile = indianMobile(phone);
-  if (!clean(name, 80) || !mobile) return res.status(400).json({ error: "Please add your name and a valid 10-digit Indian mobile number." });
-  if (!Array.isArray(items) || !items.length) return res.status(400).json({ error: "Your order is empty." });
-  if (!/^\d{2}:\d{2}$/.test(String(pickup || ""))) return res.status(400).json({ error: "Please choose a pickup time." });
-
-  const now = B.nowLocal();
-  const hours = CFG.HOURS[B.weekday(now.date)];
-  if (!hours) return res.status(400).json({ error: "We're closed today, so we can't take pickup orders." });
-  const pickupMin = B.toMin(pickup);
-  if (pickupMin < now.minutes + CFG.ORDER_LEAD_MIN) {
-    return res.status(400).json({ error: `Pickup needs at least ${CFG.ORDER_LEAD_MIN} minutes. Please choose a later time.` });
-  }
-  if (pickupMin < hours[0] * 60 || pickupMin > CFG.LAST_SEATING * 60) {
-    return res.status(400).json({ error: "Pickup must be within our kitchen hours, until 21:30." });
-  }
-
-  let totalQty = 0;
-  const lines = [];
-  const lookup = db.prepare("SELECT id, name, price, available FROM menu_items WHERE id = ?");
-  for (const line of items) {
-    const qty = Number(line && line.qty);
-    const item = lookup.get(Number(line && line.id));
-    if (!item || !Number.isInteger(qty) || qty < 1 || qty > CFG.ORDER_MAX_QTY) {
-      return res.status(400).json({ error: "Something in your order is no longer on the menu. Please refresh and try again." });
-    }
-    if (!item.available) return res.status(409).json({ error: `Sorry, ${item.name} just ran out. Please remove it and try again.` });
-    totalQty += qty;
-    lines.push({ item_id: item.id, name: item.name, price: item.price, qty });
-  }
-  if (totalQty > CFG.ORDER_MAX_QTY) return res.status(400).json({ error: `Online orders are limited to ${CFG.ORDER_MAX_QTY} items. Call us for larger orders.` });
-
-  // Prices always come from the database, never from the browser.
-  const total = lines.reduce((sum, l) => sum + l.price * l.qty, 0);
-  const order = tx(() => {
-    let ref;
-    do ref = makeRef("NO");
-    while (db.prepare("SELECT 1 FROM orders WHERE ref = ?").get(ref));
-    const info = db
-      .prepare(
-        `INSERT INTO orders(ref, name, phone, pickup_date, pickup_time, note, total, status, created_at)
-         VALUES(?, ?, ?, ?, ?, ?, ?, 'new', ?)`
-      )
-      .run(ref, clean(name, 80), mobile, now.date, pickup, clean(note, 300), total, new Date().toISOString());
-    const id = Number(info.lastInsertRowid);
-    const ins = db.prepare("INSERT INTO order_items(order_id, item_id, name, price, qty) VALUES(?, ?, ?, ?, ?)");
-    lines.forEach((l) => ins.run(id, l.item_id, l.name, l.price, l.qty));
-    return { id, ref };
-  });
-
-  const payload = { event: "order.created", ref: order.ref, name: clean(name, 80), phone: mobile, pickupDate: now.date, pickup, total, note: clean(note, 300), items: lines.map(({ name, qty, price }) => ({ name, qty, price })) };
-  notifyN8n(CFG.N8N_ORDER_URL, payload);
-  res.status(201).json({ ok: true, ref: order.ref, total, pickup });
-});
-
 // ---------- admin ----------
 
 app.post("/api/admin/login", auth.login);
@@ -217,7 +159,6 @@ app.get("/api/admin/me", (req, res) => res.json({ ok: auth.validToken(auth.readC
 app.use("/api/admin", auth.requireAdmin);
 
 const RES_STATUSES = ["confirmed", "seated", "completed", "no_show", "cancelled"];
-const ORDER_STATUSES = ["new", "preparing", "ready", "collected", "cancelled"];
 
 // Legacy public listing (it exposed guest phone numbers) now lives behind sign-in.
 app.get("/api/reservations", auth.requireAdmin, (req, res) => {
@@ -240,28 +181,6 @@ app.patch("/api/admin/reservations/:ref", (req, res) => {
   if (!RES_STATUSES.includes(status)) return res.status(400).json({ error: "Unknown status." });
   const info = db.prepare("UPDATE reservations SET status = ? WHERE ref = ?").run(status, req.params.ref);
   if (!info.changes) return res.status(404).json({ error: "No such booking." });
-  res.json({ ok: true });
-});
-
-function ordersWithItems(rows) {
-  const itemsStmt = db.prepare("SELECT name, price, qty FROM order_items WHERE order_id = ?");
-  return rows.map((o) => ({
-    id: o.id, ref: o.ref, name: o.name, phone: o.phone, pickupDate: o.pickup_date, pickup: o.pickup_time,
-    note: o.note, total: o.total, status: o.status, createdAt: o.created_at, items: itemsStmt.all(o.id),
-  }));
-}
-
-app.get("/api/admin/orders", (req, res) => {
-  const scope = req.query.scope === "all" ? "" : "WHERE status IN ('new','preparing','ready')";
-  const rows = db.prepare(`SELECT * FROM orders ${scope} ORDER BY pickup_date, pickup_time LIMIT 300`).all();
-  res.json(ordersWithItems(rows));
-});
-
-app.patch("/api/admin/orders/:ref", (req, res) => {
-  const status = req.body && req.body.status;
-  if (!ORDER_STATUSES.includes(status)) return res.status(400).json({ error: "Unknown status." });
-  const info = db.prepare("UPDATE orders SET status = ? WHERE ref = ?").run(status, req.params.ref);
-  if (!info.changes) return res.status(404).json({ error: "No such order." });
   res.json({ ok: true });
 });
 
@@ -305,7 +224,7 @@ app.patch("/api/admin/menu/items/:id", (req, res) => {
 });
 
 app.delete("/api/admin/menu/items/:id", (req, res) => {
-  // Past orders keep their own copy of the name and price, so deleting is safe.
+  // Reservations don't reference menu items, so deleting is safe.
   const info = db.prepare("DELETE FROM menu_items WHERE id = ?").run(Number(req.params.id));
   if (!info.changes) return res.status(404).json({ error: "No such item." });
   res.json({ ok: true });
@@ -346,13 +265,10 @@ app.get("/api/admin/digest", (req, res) => {
 app.get("/api/admin/stats", (req, res) => {
   const today = B.nowLocal().date;
   const d = digestFor(today);
-  const open = db.prepare("SELECT COUNT(*) AS n, COALESCE(SUM(total), 0) AS t FROM orders WHERE status IN ('new','preparing','ready')").get();
-  const sales = db.prepare("SELECT COUNT(*) AS n, COALESCE(SUM(total), 0) AS t FROM orders WHERE pickup_date = ? AND status != 'cancelled'").get(today);
   const noShows = db.prepare("SELECT COUNT(*) AS n FROM reservations WHERE status = 'no_show'").get().n;
   const total = db.prepare("SELECT COUNT(*) AS n FROM reservations").get().n;
   res.json({
     today, bookingsToday: d.bookings, coversToday: d.covers,
-    openOrders: open.n, ordersToday: sales.n, orderSalesToday: sales.t,
     noShowRate: total ? Math.round((noShows / total) * 100) : 0,
   });
 });

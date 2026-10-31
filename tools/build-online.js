@@ -34,9 +34,6 @@ const js = stripComments(read("public/script.js")).replace('"/api/reservations"'
 
 let html = read("public/index.html")
   .replace('<link rel="stylesheet" href="styles.css" />', () => "<style>\n" + css + "</style>")
-  // The live page has no Express back end, so it ships without the order-ahead cart.
-  .replace('\n  <link rel="stylesheet" href="order.css" />', "")
-  .replace('<script src="order.js"></script>\n  ', "")
   .replace('<script src="script.js"></script>', () =>
     "<script>window.NERO_MENU = " + JSON.stringify(menu) + ";</script>\n<script>\n" + js + "</script>"
   )

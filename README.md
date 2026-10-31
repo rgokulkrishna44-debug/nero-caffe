@@ -47,22 +47,19 @@ nero-cafe/
 - `GET  /api/menu` returns the menu as JSON
 - `GET  /api/reservations` lists stored bookings
 - `POST /api/reservations` validates and saves a booking, returns `{ ok, ref }`
-  - required: `name`, `phone` (Indian mobile, stored as `+91XXXXXXXXXX`), `date`, `time`, `guests` (1–8)
+  - required: `name`, `email`, `date`, `time`, `guests` (1–8)
   - optional: `occasion`, `note`
-  - rejects invalid numbers, past dates and Mondays (closed) with a `400` and an `error` message
-  - forwards each saved booking to the n8n webhook, which sends the guest a WhatsApp confirmation
+  - rejects invalid emails, past dates and Mondays (closed) with a `400` and an `error` message
+  - forwards each saved booking to the n8n webhook, which sends the guest a confirmation email
 
 ## Automation (n8n)
 
 Two workflows on the n8n instance:
 
-1. **NERO Caffe Reservation Alerts**: `POST /webhook/nero-reservation`. Checks the number
-   is a valid Indian mobile, sends the guest a WhatsApp confirmation through the WhatsApp
-   Cloud API (the Luvia Reminders sandbox number), emails the owner a copy, and replies
-   with `{ ok, ref, whatsapp }`, where `whatsapp` is `true` only when Meta accepts the message.
-   Sandbox limits: only numbers added to the test number's allowed list can receive
-   messages, and a plain-text message is only delivered if that number has messaged the
-   sandbox number in the last 24 hours.
+1. **NERO Caffe Reservation Alerts**: `POST /webhook/nero-reservation`. Checks the email
+   address, emails the guest a confirmation, emails the owner a copy, and replies with
+   `{ ok, ref, emailed }`, where `emailed` is `true` only when Gmail accepted the guest email.
+   WhatsApp is not used.
 2. **NERO Caffe Website**: `GET /webhook/nero-caffe`. Serves the live page over HTTPS;
    any plain `http://` request gets a permanent (301) redirect to the `https://` URL.
 
@@ -90,8 +87,7 @@ Photos: Unsplash (free to use under the Unsplash License).
 
 - Storage is now SQLite (`data/nero.db`, Node's built-in `node:sqlite`, Node 22.5+). First run imports the menu and any old `reservations.json`.
 - **Capacity:** bookings are refused when seats in use would pass the limit (default 18 seats, 90 minute tables, editable in the admin). `GET /api/availability?date=` feeds the booking form, which greys out full times.
-- **Admin dashboard:** `/admin`. Bookings (seat, done, no show, cancel), pickup order board, menu editor (prices, sold out, add or delete), settings, tomorrow's digest.
-- **Order ahead:** `POST /api/orders`, pickup today only, prices come from the database. Shown only when this Express server serves the site, not on the live n8n page.
-- **Security:** `GET /api/reservations` (which listed guest phone numbers) now needs sign-in.
-- Environment variables: `NERO_ADMIN_PASSWORD`, `NERO_API_KEY` (header `x-api-key`, for n8n), `NERO_SESSION_SECRET`, `NERO_DB`, `NERO_NOTIFY=off` (no WhatsApp or email when testing). Unset passwords are generated and printed at start.
-- n8n still to build: a `nero-order` webhook workflow (kitchen alert, WhatsApp "ready" message) and a daily schedule that calls `GET /api/admin/digest` with the API key. Until then order alerts fail silently.
+- **Admin dashboard:** `/admin`. Bookings (seat, done, no show, cancel), menu editor (prices, sold out, add or delete), settings, tomorrow's digest.
+- **Order ahead removed (31 Oct):** the pickup cart, checkout dialog and `/api/orders` were taken out. The menu still shows sold-out items.
+- **Security:** `GET /api/reservations` (which listed guest contact details) now needs sign-in.
+- Environment variables: `NERO_ADMIN_PASSWORD`, `NERO_API_KEY` (header `x-api-key`, for n8n), `NERO_SESSION_SECRET`, `NERO_DB`, `NERO_NOTIFY=off` (no emails when testing). Unset passwords are generated and printed at start.

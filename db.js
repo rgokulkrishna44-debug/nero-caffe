@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS menu_items (
 CREATE TABLE IF NOT EXISTS reservations (
   ref TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  phone TEXT NOT NULL,
+  phone TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
   date TEXT NOT NULL,                  -- YYYY-MM-DD
   time TEXT NOT NULL,                  -- HH:MM
   guests INTEGER NOT NULL,
@@ -41,28 +42,10 @@ CREATE TABLE IF NOT EXISTS reservations (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_res_date ON reservations(date, time);
-CREATE TABLE IF NOT EXISTS orders (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ref TEXT NOT NULL UNIQUE,
-  name TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  pickup_date TEXT NOT NULL,
-  pickup_time TEXT NOT NULL,
-  note TEXT NOT NULL DEFAULT '',
-  total INTEGER NOT NULL,
-  status TEXT NOT NULL DEFAULT 'new',  -- new, preparing, ready, collected, cancelled
-  created_at TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS order_items (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  item_id INTEGER,
-  name TEXT NOT NULL,
-  price INTEGER NOT NULL,
-  qty INTEGER NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status, pickup_date, pickup_time);
 `);
+if (!db.prepare("PRAGMA table_info(reservations)").all().some((c) => c.name === "email")) {
+  db.exec("ALTER TABLE reservations ADD COLUMN email TEXT NOT NULL DEFAULT ''");
+}
 
 function tx(fn) {
   db.exec("BEGIN IMMEDIATE");

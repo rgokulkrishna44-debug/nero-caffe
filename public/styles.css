@@ -306,3 +306,6 @@ input.invalid, select.invalid { border-color: #d0654f; }
   .js .reveal, .js .collage figure { opacity: 1; transform: none; }
   .js .collage figure { transform: rotate(var(--r)); }
 }
+
+.menu-item.sold-out .item-name, .menu-item.sold-out .price { opacity: .45; text-decoration: line-through; text-decoration-thickness: 1px; }
+.menu-item.sold-out .item-note { opacity: .45; }

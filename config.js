@@ -8,8 +8,5 @@ module.exports = {
   DEFAULT_SEATS: 18, // "Eighteen seats", see the Reserve section of the site
   DEFAULT_DWELL_MIN: 90, // how long a booking holds its seats
   MAX_GUESTS: 8,
-  ORDER_LEAD_MIN: 20, // earliest pickup, minutes from now
-  ORDER_MAX_QTY: 20, // total items in one order
   N8N_RESERVATION_URL: "https://n8n.luvias.in/webhook/nero-reservation",
-  N8N_ORDER_URL: "https://n8n.luvias.in/webhook/nero-order",
 };

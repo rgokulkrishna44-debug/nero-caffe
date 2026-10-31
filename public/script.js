@@ -105,7 +105,6 @@
         row.appendChild(copy);
         row.appendChild(price);
         if (item.available === false) row.classList.add("sold-out");
-        if (window.NeroOrder && item.id) window.NeroOrder.decorate(row, item);
         group.appendChild(row);
       });
       groupsEl.appendChild(group);
@@ -219,11 +218,10 @@
     else field.removeAttribute("aria-invalid");
   }
 
-  // Accepts "98765 43210", "+91 98765 43210" or "098765 43210"; returns
-  // "+919876543210", or "" when it isn't a valid Indian mobile number.
-  function indianMobile(raw) {
-    var digits = String(raw).replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, "");
-    return /^[6-9]\d{9}$/.test(digits) ? "+91" + digits : "";
+  // Returns the trimmed address, or "" when it doesn't look like an email.
+  function cleanEmail(raw) {
+    var v = String(raw).trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && v.length <= 120 ? v : "";
   }
 
   function validate(p) {
@@ -231,9 +229,8 @@
     var problems = [];
     markInvalid(f.name, !p.name);
     if (!p.name) problems.push("your name");
-    var phoneOk = !!p.phone;
-    markInvalid(f.phone, !phoneOk);
-    if (!phoneOk) problems.push("a 10-digit Indian mobile number");
+    markInvalid(f.email, !p.email);
+    if (!p.email) problems.push("a valid email address");
     markInvalid(f.date, !p.date);
     if (!p.date) problems.push("a date");
     markInvalid(f.time, !p.time);
@@ -245,15 +242,15 @@
     return null;
   }
 
-  function showDone(p, ref, whatsappSent) {
+  function showDone(p, ref, emailSent) {
     var dateLabel = new Date(p.date + "T00:00:00").toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
     document.getElementById("done-title").textContent = "Grazie, " + p.name.split(" ")[0] + ". You're booked.";
     document.getElementById("done-detail").textContent =
       "A table for " + p.guests + (p.guests === "1" ? " guest" : " guests") + " on " + dateLabel + " at " + p.time + ".";
     document.getElementById("done-ref").textContent = ref;
-    document.getElementById("done-note").textContent = whatsappSent === false
-      ? "We couldn't reach " + p.phone + " on WhatsApp, but your table is booked. Keep your reference handy."
-      : "Your confirmation is on its way to WhatsApp at " + p.phone + ".";
+    document.getElementById("done-note").textContent = emailSent === false
+      ? "We couldn't email " + p.email + ", but your table is booked. Keep your reference handy."
+      : "Your confirmation is on its way to " + p.email + ".";
     form.hidden = true;
     done.hidden = false;
   }
@@ -273,7 +270,7 @@
       var f = form.elements;
       var payload = {
         name: f.name.value.trim(),
-        phone: indianMobile(f.phone.value),
+        email: cleanEmail(f.email.value),
         date: f.date.value,
         time: f.time.value,
         guests: f.guests.value,
@@ -298,7 +295,7 @@
         .then(function (res) {
           return res.json().catch(function () { return {}; }).then(function (data) {
             if (!res.ok || data.ok === false) throw new Error(data.error || "Something went wrong. Please try again.");
-            showDone(payload, data.ref || "NR-" + Date.now().toString(36).slice(-5).toUpperCase(), data.whatsapp);
+            showDone(payload, data.ref || "NR-" + Date.now().toString(36).slice(-5).toUpperCase(), data.emailed);
           });
         })
         .catch(function (err) {

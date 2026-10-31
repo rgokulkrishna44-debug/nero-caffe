@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="order.css" />
   <script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
@@ -215,14 +214,11 @@
                 <input type="text" id="name" name="name" autocomplete="name" required />
               </div>
               <div class="field">
-                <label for="phone">WhatsApp number</label>
-                <div class="tel-wrap">
-                  <span class="tel-prefix" aria-hidden="true">+91</span>
-                  <input type="tel" id="phone" name="phone" autocomplete="tel-national" inputmode="numeric" maxlength="14" placeholder="98765 43210" aria-describedby="phone-hint" required />
-                </div>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" aria-describedby="email-hint" required />
               </div>
             </div>
-            <p class="field-hint" id="phone-hint">Indian mobile number. Your booking confirmation is sent here on WhatsApp.</p>
+            <p class="field-hint" id="email-hint">Your booking confirmation is sent to this email.</p>
             <div class="row">
               <div class="field">
                 <label for="date">Date</label>
@@ -264,7 +260,7 @@
             <h3 id="done-title">You're booked.</h3>
             <p id="done-detail"></p>
             <p class="ref">Booking reference <strong id="done-ref"></strong></p>
-            <p class="done-note" id="done-note">Your confirmation is on its way to WhatsApp.</p>
+            <p class="done-note" id="done-note">Your confirmation is on its way to your email.</p>
             <button type="button" class="btn btn-ghost" id="book-another">Make another booking</button>
           </div>
         </div>
@@ -322,7 +318,6 @@
     </div>
   </footer>
 
-  <script src="order.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
