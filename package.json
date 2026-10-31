@@ -1,0 +1,16 @@
+{
+  "name": "nero-cafe",
+  "version": "1.0.0",
+  "description": "NERO Caffe - cafe website with an Express + SQLite back end, admin dashboard and n8n automations",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=22.5"
+  }
+}

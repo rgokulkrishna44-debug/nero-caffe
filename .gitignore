@@ -1,0 +1,6 @@
+node_modules/
+data/nero.db
+data/nero.db-wal
+data/nero.db-shm
+.env
+.DS_Store

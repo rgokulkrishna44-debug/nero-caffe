@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: nero-caffe
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/menu
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: NODE_ENV
+        value: production
+      - key: NERO_ADMIN_PASSWORD
+        generateValue: true
+      - key: NERO_API_KEY
+        generateValue: true
+      - key: NERO_SESSION_SECRET
+        generateValue: true
+      - key: NERO_NOTIFY
+        value: "on"

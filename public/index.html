@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NERO Caffè</title>
+  <meta name="description" content="NERO Caffè — single-origin espresso by day, wood-fired pizza by night. Lavelle Road, Bengaluru." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="order.css" />
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+
+  <header class="nav" id="nav">
+    <div class="wrap nav-inner">
+      <a class="wordmark" href="#top">NERO</a>
+      <nav class="nav-links" id="nav-links">
+        <a href="#storia">Our Story</a>
+        <a href="#signatures">Signatures</a>
+        <a href="#process">Our Coffee</a>
+        <a href="#menu">Menu</a>
+        <a href="#galleria">Gallery</a>
+        <a href="#visit">Visit</a>
+        <a class="btn btn-solid btn-small" href="#prenota">Reserve</a>
+      </nav>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <section class="hero" id="home">
+      <div class="hero-media"><img src="images/hero.jpg" alt="Espresso machine on the NERO counter" /></div>
+      <div class="wrap hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow hero-anim" style="--d:0">Caffè · Cucina · Bar — Bengaluru</p>
+          <h1 class="hero-anim" style="--d:1">NERO</h1>
+          <p class="tagline hero-anim" style="--d:2">Single-origin espresso by day.<br />Wood-fired pizza by night.</p>
+          <div class="hero-ctas hero-anim" style="--d:3">
+            <a class="btn btn-solid" href="#prenota">Reserve a table</a>
+            <a class="btn btn-ghost" href="#menu">Explore the menu</a>
+          </div>
+        </div>
+        <ul class="hero-facts hero-anim" style="--d:4">
+          <li><span>Open today</span><strong id="today-hours">08:00 – 22:00</strong></li>
+          <li><span>Find us</span><strong>Lavelle Road, Bengaluru</strong></li>
+          <li><span>Seats</span><strong>18, by the window</strong></li>
+        </ul>
+      </div>
+      <a class="scroll-cue" href="#storia" aria-label="Scroll to our story"><span></span></a>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Single-origin espresso</span><i>✦</i><span>Wood-fired pizza</span><i>✦</i><span>Baked at dawn</span><i>✦</i><span>Chikmagalur · Coorg · Yirgacheffe</span><i>✦</i>
+        <span>Single-origin espresso</span><i>✦</i><span>Wood-fired pizza</span><i>✦</i><span>Baked at dawn</span><i>✦</i><span>Chikmagalur · Coorg · Yirgacheffe</span><i>✦</i>
+      </div>
+    </div>
+
+    <section class="storia" id="storia">
+      <div class="wrap storia-inner">
+        <div class="storia-media reveal">
+          <img class="storia-main" src="images/interior.jpg" alt="The NERO dining room in afternoon light" />
+          <img class="storia-inset" src="images/cups-top.jpg" alt="The coffee bar with pendant lights" />
+        </div>
+        <div class="storia-copy">
+          <p class="kicker reveal">La Storia</p>
+          <h2 class="reveal">A small room, made for slowness.</h2>
+          <p class="lede reveal">
+            NERO began as one espresso machine and a folding table. We've since
+            added a wood-fired oven and a short kitchen menu, but the rule hasn't
+            changed: do one thing properly, in a room with nowhere to rush to.
+          </p>
+          <p class="lede reveal">
+            Our beans come from three estates at a time, roasted every Tuesday and
+            rested before they reach the grinder. Pastry starts at five each morning.
+          </p>
+          <dl class="stats reveal-group">
+            <div class="reveal"><dt>3</dt><dd>origins on rotation</dd></div>
+            <div class="reveal"><dt>72h</dt><dd>slow-proved pizza dough</dd></div>
+            <div class="reveal"><dt>5 am</dt><dd>first bake of the day</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="signatures" id="signatures">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker">Da Provare</p>
+          <h2>House signatures</h2>
+          <p class="lede">What regulars order before they've sat down.</p>
+        </div>
+        <div class="sig-grid">
+          <article class="sig-card reveal">
+            <div class="sig-img"><img src="images/latte.jpg" alt="Two cappuccinos with latte art" /><span class="tag">Most ordered</span></div>
+            <div class="sig-body"><h3>Cappuccino</h3><span class="price">₹160</span></div>
+            <p>Chikmagalur espresso, velvet-textured milk.</p>
+          </article>
+          <article class="sig-card reveal">
+            <div class="sig-img"><img src="images/croissant.jpg" alt="Cornetti dusted with sugar" /></div>
+            <div class="sig-body"><h3>Cornetto Sfogliato</h3><span class="price">₹130</span></div>
+            <p>Laminated for three days, baked at dawn.</p>
+          </article>
+          <article class="sig-card reveal">
+            <div class="sig-img"><img src="images/pizza.jpg" alt="Quattro formaggi pizza" /></div>
+            <div class="sig-body"><h3>Quattro Formaggi</h3><span class="price">₹430</span></div>
+            <p>Four cheeses on 72-hour dough, from the wood oven.</p>
+          </article>
+          <article class="sig-card reveal">
+            <div class="sig-img"><img src="images/burger.jpg" alt="Double chicken burger" /></div>
+            <div class="sig-body"><h3>Classic Pollo</h3><span class="price">₹360</span></div>
+            <p>Double chicken patty, aged cheddar, house sauce.</p>
+          </article>
+          <article class="sig-card reveal">
+            <div class="sig-img"><img src="images/tiramisu.jpg" alt="A slice of tiramisu" /><span class="tag">Chef's pick</span></div>
+            <div class="sig-body"><h3>Tiramisù</h3><span class="price">₹220</span></div>
+            <p>Espresso-soaked savoiardi, mascarpone, cocoa.</p>
+          </article>
+          <article class="sig-card reveal">
+            <div class="sig-img"><img src="images/iced-latte.jpg" alt="Iced latte in a tall glass" /></div>
+            <div class="sig-body"><h3>Iced Latte</h3><span class="price">₹180</span></div>
+            <p>Double shot over cold milk and clear ice.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="process" id="process">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker">Dal Chicco alla Tazza</p>
+          <h2>From bean to cup</h2>
+        </div>
+        <ol class="steps">
+          <li class="step reveal">
+            <img src="images/beans.jpg" alt="Roasted coffee beans" />
+            <span class="step-no">01</span>
+            <h3>Sourced</h3>
+            <p>Three estates at a time, from Chikmagalur and Coorg to Yirgacheffe.</p>
+          </li>
+          <li class="step reveal">
+            <img src="images/grind-board.jpg" alt="Ground coffee and portafilters on wooden boards" />
+            <span class="step-no">02</span>
+            <h3>Roasted weekly</h3>
+            <p>Small batches every Tuesday, rested five days before grinding.</p>
+          </li>
+          <li class="step reveal">
+            <img src="images/crema.jpg" alt="Espresso crema seen from above" />
+            <span class="step-no">03</span>
+            <h3>Poured to order</h3>
+            <p>Dialled in each morning. Every shot weighed, every cup made for you.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="menu" id="menu">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker">Il Menù</p>
+          <h2>From the counter and the kitchen</h2>
+          <p class="lede">Prices in ₹, inclusive of taxes.
+            <span class="legend"><i class="dot veg"></i>Veg <i class="dot nonveg"></i>Non-veg</span>
+          </p>
+        </div>
+        <div class="menu-groups" id="menu-groups">
+          <p class="menu-loading">Loading today's menu…</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="galleria" id="galleria">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <p class="kicker">Galleria</p>
+          <h2>Moments at NERO</h2>
+        </div>
+        <div class="collage">
+          <figure class="c1"><img src="images/cafe-people.jpg" alt="The lit CAFE sign above our counter" /><figcaption>The counter, 7 pm</figcaption></figure>
+          <figure class="c2"><img src="images/espresso.jpg" alt="Two guests raising cappuccinos" /><figcaption>First cup</figcaption></figure>
+          <figure class="c3"><img src="images/cups-top.jpg" alt="The bar with pendant lights" /><figcaption>Morning service</figcaption></figure>
+          <figure class="c4"><img src="images/pastry.jpg" alt="Fresh loaves with wheat" /><figcaption>Out of the oven</figcaption></figure>
+          <figure class="c5"><img src="images/barista.jpg" alt="Outdoor tables on a cobbled street" /><figcaption>Terrace tables</figcaption></figure>
+          <figure class="c6"><img src="images/cup-table.jpg" alt="Latte art, grounds and beans in portafilters" /><figcaption>Grind, tamp, pour</figcaption></figure>
+          <figure class="c7"><img src="images/beans.jpg" alt="Roasted coffee beans" /><figcaption>Tuesday's roast</figcaption></figure>
+          <figure class="c8"><img src="images/latte.jpg" alt="Cappuccinos among plants" /><figcaption>Slow afternoons</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="prenota" id="prenota">
+      <div class="wrap prenota-inner">
+        <div class="prenota-copy">
+          <p class="kicker reveal">Prenotazioni</p>
+          <h2 class="reveal">Reserve a table</h2>
+          <p class="lede reveal">Eighteen seats, most of them by the window. Book online for up to eight guests.</p>
+          <ul class="prenota-notes reveal">
+            <li><strong>Tables are held for 15 minutes</strong> past your booking time.</li>
+            <li><strong>Groups of 9 or more:</strong> call <span class="nowrap">+91 80 0000 1414</span>.</li>
+            <li><strong>Closed Mondays.</strong> Kitchen closes at 21:30.</li>
+          </ul>
+        </div>
+
+        <div class="booking reveal">
+          <form id="reservation-form" class="reservation-form" novalidate>
+            <div class="row">
+              <div class="field">
+                <label for="name">Full name</label>
+                <input type="text" id="name" name="name" autocomplete="name" required />
+              </div>
+              <div class="field">
+                <label for="phone">WhatsApp number</label>
+                <div class="tel-wrap">
+                  <span class="tel-prefix" aria-hidden="true">+91</span>
+                  <input type="tel" id="phone" name="phone" autocomplete="tel-national" inputmode="numeric" maxlength="14" placeholder="98765 43210" aria-describedby="phone-hint" required />
+                </div>
+              </div>
+            </div>
+            <p class="field-hint" id="phone-hint">Indian mobile number. Your booking confirmation is sent here on WhatsApp.</p>
+            <div class="row">
+              <div class="field">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required />
+              </div>
+              <div class="field">
+                <label for="time">Time</label>
+                <select id="time" name="time" required></select>
+              </div>
+              <div class="field small">
+                <label for="guests">Guests</label>
+                <select id="guests" name="guests" required>
+                  <option>1</option><option selected>2</option><option>3</option><option>4</option>
+                  <option>5</option><option>6</option><option>7</option><option>8</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="occasion">Occasion <span class="optional">(optional)</span></label>
+              <select id="occasion" name="occasion">
+                <option value="">None</option>
+                <option>Birthday</option>
+                <option>Anniversary</option>
+                <option>Date night</option>
+                <option>Business</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="note">Note <span class="optional">(optional)</span></label>
+              <textarea id="note" name="note" rows="3" placeholder="Allergies, seating preference…"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-solid" id="submit-btn">Confirm reservation</button>
+            <p id="form-message" class="form-message" role="alert"></p>
+          </form>
+
+          <div class="booking-done" id="booking-done" hidden>
+            <p class="kicker">Prenotato</p>
+            <h3 id="done-title">You're booked.</h3>
+            <p id="done-detail"></p>
+            <p class="ref">Booking reference <strong id="done-ref"></strong></p>
+            <p class="done-note" id="done-note">Your confirmation is on its way to WhatsApp.</p>
+            <button type="button" class="btn btn-ghost" id="book-another">Make another booking</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="visit" id="visit">
+      <div class="wrap visit-inner">
+        <div class="reveal">
+          <p class="kicker">Dove</p>
+          <h2>Visit us</h2>
+          <p class="address">14 Lavelle Road<br />Ashok Nagar, Bengaluru 560001</p>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=Lavelle+Road+Bengaluru" target="_blank" rel="noopener">Get directions</a>
+        </div>
+        <div class="reveal">
+          <h3>Hours</h3>
+          <ul class="hours" id="hours">
+            <li data-day="1"><span>Monday</span><span>Closed</span></li>
+            <li data-day="2"><span>Tuesday</span><span>08:00 – 22:00</span></li>
+            <li data-day="3"><span>Wednesday</span><span>08:00 – 22:00</span></li>
+            <li data-day="4"><span>Thursday</span><span>08:00 – 22:00</span></li>
+            <li data-day="5"><span>Friday</span><span>08:00 – 23:00</span></li>
+            <li data-day="6"><span>Saturday</span><span>08:00 – 23:00</span></li>
+            <li data-day="0"><span>Sunday</span><span>09:00 – 22:00</span></li>
+          </ul>
+        </div>
+        <div class="reveal">
+          <h3>Contact</h3>
+          <p>ciao@nerocaffe.in</p>
+          <p>+91 80 0000 1414</p>
+          <h3 class="spaced">Follow</h3>
+          <p>@nerocaffe.blr</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <div>
+        <a class="wordmark" href="#top">NERO</a>
+        <p>Caffè · Cucina · Bar</p>
+      </div>
+      <nav class="footer-links">
+        <a href="#storia">Our Story</a>
+        <a href="#signatures">Signatures</a>
+        <a href="#process">Our Coffee</a>
+        <a href="#menu">Menu</a>
+        <a href="#galleria">Gallery</a>
+        <a href="#prenota">Reserve</a>
+        <a href="#visit">Visit</a>
+      </nav>
+      <p class="copyright">© 2026 NERO Caffè, Bengaluru</p>
+    </div>
+  </footer>
+
+  <script src="order.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
