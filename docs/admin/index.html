@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>NERO Caffè · Back office</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="../api-shim.js"></script>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <section id="login" class="login" hidden>
+    <form id="login-form">
+      <h1>NERO <em>Back office</em></h1>
+      <label for="pw">Password</label>
+      <input id="pw" type="password" autocomplete="current-password" required />
+      <button class="btn" type="submit">Sign in</button>
+      <p id="login-msg" class="msg" role="alert"></p>
+    </form>
+  </section>
+
+  <div id="app" class="shell" hidden>
+    <aside class="side">
+      <div class="brand">NERO <em>Back office</em></div>
+      <nav id="tabs" aria-label="Sections">
+        <button data-tab="today" class="on">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+          <span>Today</span>
+        </button>
+        <button data-tab="bookings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+          <span>Bookings</span><i class="badge" id="nav-badge" hidden></i>
+        </button>
+        <button data-tab="insights">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>
+          <span>Insights</span>
+        </button>
+        <button data-tab="menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2M12 3.5v2"/></svg>
+          <span>Menu</span>
+        </button>
+        <button data-tab="settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/></svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+      <div class="side-foot">
+        <a href="../" class="link">View site</a>
+        <button id="logout" class="link" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="titles">
+          <h1 id="page-title">Today</h1>
+          <p id="page-sub" class="sub"></p>
+        </div>
+        <div class="topright">
+          <span class="live" id="live" title="Refreshes by itself every 10 seconds"><span class="dot"></span><span id="live-text">Live</span></span>
+          <button class="btn sm" id="new-booking" type="button">New booking</button>
+          <button class="btn ghost sm" id="refresh" type="button">Refresh</button>
+          <a href="../" class="link m-only">Site</a>
+          <button class="link m-only" id="logout-m" type="button">Sign out</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="tab-today" class="tab">
+          <p class="print-only" id="print-title"></p>
+          <div class="card attention" id="attention" hidden></div>
+          <div class="kpis" id="kpis"></div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Today's floor</h2>
+              <p class="hint" id="tl-sub"></p>
+            </div>
+            <div class="tl-scroll"><div id="timeline"></div></div>
+            <div class="legend">
+              <span><i class="sw confirmed"></i>Confirmed</span>
+              <span><i class="sw seated"></i>Seated</span>
+              <span><i class="sw completed"></i>Done</span>
+              <span><i class="sw no_show"></i>No show</span>
+              <span class="hint">Click a booking for details</span>
+            </div>
+          </div>
+
+          <div class="two" id="today-two">
+            <div class="card flush">
+              <div class="card-head pad"><h2>Arrivals</h2><button class="btn ghost sm" id="print-day" type="button">Print day sheet</button></div>
+              <div id="today-list"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>Tomorrow's digest</h2></div>
+              <pre id="digest"></pre>
+              <button class="btn ghost" id="copy-digest" type="button">Copy text</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-bookings" class="tab" hidden>
+          <div class="toolbar">
+            <label class="search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+              <input id="b-q" type="search" placeholder="Search name, reference, email or phone   ( / )" autocomplete="off" />
+            </label>
+            <div class="chips" id="b-range" role="group" aria-label="Date range">
+              <button data-v="upcoming" class="on" type="button">Upcoming</button>
+              <button data-v="today" type="button">Today</button>
+              <button data-v="past" type="button">Past 30 days</button>
+              <button data-v="all" type="button">All</button>
+            </div>
+            <button class="btn ghost sm" id="b-export" type="button">Export CSV</button>
+          </div>
+          <div class="chips status" id="b-status" role="group" aria-label="Status"></div>
+          <div class="card flush"><div id="b-table"></div></div>
+        </section>
+
+        <section id="tab-insights" class="tab" hidden>
+          <div class="toolbar">
+            <div class="chips" id="i-win" role="group" aria-label="Period">
+              <button data-v="7" class="on" type="button">Last 7 days</button>
+              <button data-v="30" type="button">Last 30 days</button>
+              <button data-v="next14" type="button">Next 14 days</button>
+            </div>
+          </div>
+          <div class="kpis" id="i-kpis"></div>
+          <div class="card">
+            <div class="card-head"><h2>Bookings per day</h2><p class="hint" id="i-days-sub"></p></div>
+            <div id="chart-days"></div>
+          </div>
+          <div class="two even">
+            <div class="card">
+              <div class="card-head"><h2>Busy hours</h2><p class="hint">Guests by booking start</p></div>
+              <div id="chart-hours"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>Outcomes</h2></div>
+              <div id="chart-status" class="donut-wrap"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="tab-menu" class="tab" hidden>
+          <div class="toolbar">
+            <label class="search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+              <input id="m-q" type="search" placeholder="Filter menu items" autocomplete="off" />
+            </label>
+          </div>
+          <div class="card">
+            <h2>Add an item</h2>
+            <form id="add-item" class="inline">
+              <select id="n-cat"></select>
+              <input id="n-name" placeholder="Name" required />
+              <input id="n-price" type="number" min="0" placeholder="Price ₹" required />
+              <input id="n-note" placeholder="Note (optional)" />
+              <select id="n-veg"><option value="">Not marked</option><option value="veg">Veg</option><option value="nonveg">Non-veg</option></select>
+              <button class="btn" type="submit">Add</button>
+            </form>
+          </div>
+          <div id="menu-groups"></div>
+        </section>
+
+        <section id="tab-settings" class="tab" hidden>
+          <div class="card narrow">
+            <h2>Seating capacity</h2>
+            <form id="settings-form" class="stack">
+              <label>Seats in the cafe <input id="s-seats" type="number" min="1" max="200" required /></label>
+              <label>Minutes a table is held per booking <input id="s-dwell" type="number" min="30" max="240" step="5" required /></label>
+              <p class="hint">Online bookings are refused once the seats in use at any point of a booking would exceed this number.</p>
+              <button class="btn" type="submit">Save</button>
+              <p id="s-msg" class="msg"></p>
+            </form>
+          </div>
+          <div class="card narrow" id="pw-card" hidden>
+            <h2>Password</h2>
+            <form id="pw-form" class="stack">
+              <label>Current password <input id="pw-cur" type="password" autocomplete="current-password" required /></label>
+              <label>New password <input id="pw-new" type="password" minlength="8" maxlength="100" autocomplete="new-password" required /></label>
+              <p class="hint">At least 8 characters. Changing it signs out every other device.</p>
+              <button class="btn" type="submit">Change password</button>
+              <p id="pw-msg" class="msg"></p>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="scrim" hidden></div>
+    <aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Booking details"></aside>
+    <div id="tip" class="tip" hidden></div>
+    <p id="toast" class="toast" role="status" hidden></p>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>NERO Caffè · My booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="api-shim.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="my-booking.css" />
+</head>
+<body>
+  <header class="mb-top">
+    <div class="wrap mb-top-inner">
+      <a class="wordmark" href="./">NERO</a>
+      <a class="mb-back" href="./#prenota">Book a table</a>
+    </div>
+  </header>
+
+  <main class="wrap mb-main">
+
+    <!-- Sign-in: reference + email -->
+    <section id="mb-lookup" class="mb-lookup" hidden>
+      <p class="kicker">La tua prenotazione</p>
+      <h1>Find your reservation</h1>
+      <p class="mb-lede">Enter the booking reference and email from your confirmation.</p>
+      <form id="mb-form" class="mb-form" novalidate>
+        <div class="field">
+          <label for="mb-ref">Booking reference</label>
+          <input id="mb-ref" name="ref" type="text" placeholder="NR-XXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" required />
+        </div>
+        <div class="field">
+          <label for="mb-email">Email used for the booking</label>
+          <input id="mb-email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <button type="submit" class="btn btn-solid" id="mb-find">Show my reservation</button>
+        <p id="mb-error" class="mb-error" role="alert"></p>
+      </form>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="mb-dash" hidden>
+      <p class="kicker" id="mb-kicker">La tua prenotazione</p>
+      <h1 id="mb-hello">Your reservation</h1>
+
+      <article class="mb-card" id="mb-card">
+        <div class="mb-card-head">
+          <span class="mb-pill" id="mb-pill"></span>
+          <span class="mb-when" id="mb-when"></span>
+        </div>
+        <div class="mb-big">
+          <div>
+            <p class="mb-label">Date</p>
+            <p class="mb-value" id="mb-date"></p>
+          </div>
+          <div>
+            <p class="mb-label">Time</p>
+            <p class="mb-value" id="mb-time"></p>
+          </div>
+          <div>
+            <p class="mb-label">Table for</p>
+            <p class="mb-value" id="mb-guests"></p>
+          </div>
+        </div>
+        <dl class="mb-facts" id="mb-facts"></dl>
+        <p class="mb-hold" id="mb-hold"></p>
+        <div class="mb-actions" id="mb-actions">
+          <button type="button" class="btn btn-solid btn-small" id="mb-ics">Add to calendar</button>
+          <a class="btn btn-ghost btn-small" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Lavelle+Road+Bengaluru">Get directions</a>
+          <button type="button" class="btn btn-ghost btn-small mb-danger" id="mb-cancel">Cancel booking</button>
+        </div>
+        <div class="mb-confirm" id="mb-confirm" hidden>
+          <p>Cancel this reservation? Your table will be released.</p>
+          <div class="mb-confirm-row">
+            <button type="button" class="btn btn-ghost btn-small mb-danger" id="mb-cancel-yes">Yes, cancel it</button>
+            <button type="button" class="btn btn-ghost btn-small" id="mb-cancel-no">Keep it</button>
+          </div>
+        </div>
+        <p id="mb-card-msg" class="mb-error" role="alert"></p>
+      </article>
+
+      <section id="mb-others-wrap" class="mb-others" hidden>
+        <h2>Your other bookings</h2>
+        <ul id="mb-others"></ul>
+      </section>
+
+      <p class="mb-foot">
+        <button type="button" class="mb-link" id="mb-switch">Look up a different booking</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="mb-link" id="mb-forget">Forget this device</button>
+      </p>
+    </section>
+
+    <p id="mb-loading" class="mb-lede">Finding your table…</p>
+  </main>
+
+  <footer class="mb-footer">
+    <div class="wrap">
+      <p>14 Lavelle Road, Ashok Nagar, Bengaluru · ciao@nerocaffe.in · +91 80 0000 1414</p>
+    </div>
+  </footer>
+
+  <script src="my-booking.js"></script>
+</body>
+</html>

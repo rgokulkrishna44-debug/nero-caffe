@@ -249,7 +249,7 @@
       "A table for " + p.guests + (p.guests === "1" ? " guest" : " guests") + " on " + dateLabel + " at " + p.time + ".";
     document.getElementById("done-ref").textContent = ref;
     try { localStorage.setItem("nero_booking", JSON.stringify({ ref: ref, email: p.email })); } catch (e) {}
-    document.getElementById("done-view").href = "/my-booking?ref=" + encodeURIComponent(ref);
+    document.getElementById("done-view").href = "my-booking.html?ref=" + encodeURIComponent(ref);
     document.getElementById("done-note").textContent = emailSent === false
       ? "We couldn't email " + p.email + ", but your table is booked. Keep your reference handy."
       : "Your confirmation is on its way to " + p.email + ".";

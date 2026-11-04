@@ -4,7 +4,19 @@ A premium cafe website for a Web Technologies course project: a dark espresso-th
 front end (HTML/CSS/JS), a Node/Express back end with a JSON-file store, and an n8n
 automation that sends an alert for every table booking.
 
-**Live site:** https://n8n.luvias.in/webhook/nero-caffe
+**Live site:** https://rgokulkrishna44-debug.github.io/nero-caffe/
+
+## Hosting on GitHub Pages
+
+GitHub Pages only serves static files, so on `*.github.io` the pages in `docs/` send every
+`/api` call to one n8n webhook (`public/api-shim.js`). The workflow "NERO Caffe API" runs the
+booking, admin and menu rules from `n8n/handler.js` and keeps its data in an n8n data table.
+Bookings, availability, guest lookup, admin sign in, menu edits, settings and stats all work
+there. Public bookings still trigger the email confirmation workflow.
+
+- Rebuild `docs/` after changing anything in `public/`: `npm run build:pages`
+- Run the same pages against the Express server (`npm start`) with no n8n: they use Express
+  unless the browser has `localStorage["nero-n8n"] = "1"`.
 
 ## Sections
 

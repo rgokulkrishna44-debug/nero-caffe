@@ -10,7 +10,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.disable("x-powered-by");
-app.set("trust proxy", true);
+// Trust exactly one proxy hop (Render's). `true` would believe a client-supplied X-Forwarded-For
+// and let anyone dodge the login lockout and lookup rate limits by changing the header.
+app.set("trust proxy", Number(process.env.NERO_TRUST_PROXY ?? 1));
 app.use(express.json({ limit: "50kb" }));
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
@@ -97,7 +99,8 @@ app.get("/api/availability", (req, res) => {
 app.post("/api/reservations", (req, res) => {
   const { name, email, date, time, guests, occasion, note } = req.body || {};
 
-  if (!name || !email || !date || !time || !guests) {
+  const guestName = clean(name, 80);
+  if (!guestName || !email || !date || !time || !guests) {
     return res.status(400).json({ error: "Name, email, date, time and guests are required." });
   }
   const guestEmail = validEmail(email);
@@ -107,6 +110,11 @@ app.post("/api/reservations", (req, res) => {
     return res.status(400).json({ error: "Online bookings are for 1 to 8 guests. Call us for larger groups." });
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || !/^\d{2}:\d{2}$/.test(String(time))) {
+    return res.status(400).json({ error: "Please choose a valid date and time." });
+  }
+  // The pattern alone lets 2027-02-31 through; a real date survives a round trip unchanged.
+  const parsed = new Date(date + "T00:00:00Z");
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date) {
     return res.status(400).json({ error: "Please choose a valid date and time." });
   }
   const now = B.nowLocal();
@@ -130,7 +138,7 @@ app.post("/api/reservations", (req, res) => {
       do ref = makeRef("NR");
       while (db.prepare("SELECT 1 FROM reservations WHERE ref = ?").get(ref));
       const r = {
-        ref, name: clean(name, 80), email: guestEmail, phone: "", date, time, guests: guestCount,
+        ref, name: guestName, email: guestEmail, phone: "", date, time, guests: guestCount,
         occasion: clean(occasion, 40), note: clean(note, 300), status: "confirmed", created_at: new Date().toISOString(),
       };
       db.prepare(
@@ -240,6 +248,52 @@ app.patch("/api/admin/reservations/:ref", (req, res) => {
   const info = db.prepare("UPDATE reservations SET status = ? WHERE ref = ?").run(status, req.params.ref);
   if (!info.changes) return res.status(404).json({ error: "No such booking." });
   res.json({ ok: true });
+});
+
+// Phone bookings and walk-ins entered by staff. Unlike the public form, email is optional, no
+// confirmation email is sent, and staff may override the seat limit (for example a regular who walks in).
+app.post("/api/admin/reservations", (req, res) => {
+  const b = req.body || {};
+  const name = clean(b.name, 80);
+  if (!name) return res.status(400).json({ error: "Enter the guest's name." });
+  const guests = Number(b.guests);
+  if (!Number.isInteger(guests) || guests < 1 || guests > 100) return res.status(400).json({ error: "Guests must be a whole number from 1 to 100." });
+  const email = String(b.email || "").trim() ? validEmail(b.email) : "";
+  if (String(b.email || "").trim() && !email) return res.status(400).json({ error: "That email address does not look right." });
+  const { date, time } = b;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || !/^\d{2}:\d{2}$/.test(String(time))) return res.status(400).json({ error: "Choose a date and a time." });
+  const parsed = new Date(date + "T00:00:00Z");
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date || B.toMin(time) >= 24 * 60) return res.status(400).json({ error: "Choose a valid date and time." });
+  if (date < B.nowLocal().date) return res.status(400).json({ error: "That date has already passed." });
+  const status = b.seated ? "seated" : "confirmed";
+
+  try {
+    const r = tx(() => {
+      if (!b.override && B.seatsLeft(date, time) < guests) {
+        const err = new Error("full");
+        err.left = B.seatsLeft(date, time);
+        throw err;
+      }
+      let ref;
+      do ref = makeRef("NR");
+      while (db.prepare("SELECT 1 FROM reservations WHERE ref = ?").get(ref));
+      const row = {
+        ref, name, email, phone: clean(b.phone, 20), date, time, guests,
+        occasion: clean(b.occasion, 40), note: clean(b.note, 300), status, created_at: new Date().toISOString(),
+      };
+      db.prepare(
+        `INSERT INTO reservations(ref, name, email, phone, date, time, guests, occasion, note, status, created_at)
+         VALUES(@ref, @name, @email, @phone, @date, @time, @guests, @occasion, @note, @status, @created_at)`
+      ).run(row);
+      return row;
+    });
+    res.status(201).json({ ok: true, reservation: rowToReservation(r) });
+  } catch (err) {
+    if (err.left != null) {
+      return res.status(409).json({ error: `Only ${err.left} seat${err.left === 1 ? "" : "s"} free at ${time}. Tick "Ignore the seat limit" to book anyway.` });
+    }
+    throw err;
+  }
 });
 
 app.get("/api/admin/menu", (req, res) => {
