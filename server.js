@@ -151,6 +151,64 @@ app.post("/api/reservations", (req, res) => {
   res.status(201).json({ ok: true, ref: out.ref, reservation: out });
 });
 
+// ---------- public: guest dashboard ("My booking") ----------
+// Guests have no accounts. A booking reference plus the email it was made with proves it is theirs.
+
+const lookupHits = new Map(); // ip -> [timestamps of recent lookups]
+function lookupLimited(ip) {
+  const now = Date.now();
+  const recent = (lookupHits.get(ip) || []).filter((t) => now - t < 10 * 60 * 1000);
+  recent.push(now);
+  lookupHits.set(ip, recent);
+  if (lookupHits.size > 5000) lookupHits.clear();
+  return recent.length > 20;
+}
+
+function findGuestBooking(body) {
+  const ref = clean(body && body.ref, 20).toUpperCase();
+  const email = clean(body && body.email, 120).toLowerCase();
+  if (!ref || !email) return null;
+  const row = db.prepare("SELECT * FROM reservations WHERE ref = ? AND lower(email) = ?").get(ref, email);
+  return row ? { row, email } : null;
+}
+
+// What the guest sees: the booking they looked up plus their other bookings under the same email.
+function guestView(found) {
+  const dwellMin = Number(getSetting("dwell_min", CFG.DEFAULT_DWELL_MIN));
+  const all = db.prepare("SELECT * FROM reservations WHERE lower(email) = ? ORDER BY date DESC, time DESC LIMIT 50").all(found.email);
+  const strip = (r) => { const o = rowToReservation(r); delete o.phone; delete o.email; return o; };
+  return {
+    reservation: strip(found.row),
+    others: all.filter((r) => r.ref !== found.row.ref).map(strip),
+    dwellMin,
+    timezone: CFG.TIMEZONE,
+    now: B.nowLocal(),
+  };
+}
+
+app.post("/api/my-booking", (req, res) => {
+  if (lookupLimited(req.ip)) return res.status(429).json({ error: "Too many tries. Please wait a few minutes and try again." });
+  const found = findGuestBooking(req.body);
+  if (!found) return res.status(404).json({ error: "We couldn't find a booking with that reference and email. Check both and try again." });
+  res.json(guestView(found));
+});
+
+app.post("/api/my-booking/cancel", (req, res) => {
+  if (lookupLimited(req.ip)) return res.status(429).json({ error: "Too many tries. Please wait a few minutes and try again." });
+  const found = findGuestBooking(req.body);
+  if (!found) return res.status(404).json({ error: "We couldn't find that booking." });
+  if (found.row.status !== "confirmed") return res.status(409).json({ error: "This booking can no longer be cancelled online." });
+  const now = B.nowLocal();
+  if (found.row.date < now.date || (found.row.date === now.date && B.toMin(found.row.time) <= now.minutes)) {
+    return res.status(409).json({ error: "This booking time has already started." });
+  }
+  db.prepare("UPDATE reservations SET status = 'cancelled' WHERE ref = ? AND status = 'confirmed'").run(found.row.ref);
+  found.row.status = "cancelled";
+  res.json(guestView(found));
+});
+
+app.get("/my-booking", (req, res) => res.sendFile(path.join(__dirname, "public", "my-booking.html")));
+
 // ---------- admin ----------
 
 app.post("/api/admin/login", auth.login);

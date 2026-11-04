@@ -1,0 +1,58 @@
+/* Guest dashboard ("My booking"): builds on the NERO tokens in styles.css */
+.mb-top { border-bottom: 1px solid var(--line); background: var(--bg); }
+.mb-top-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 1.1rem; }
+.mb-back { color: var(--accent); font-size: .9rem; letter-spacing: .06em; }
+.mb-back:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.mb-main { padding-block: clamp(2.5rem, 7vw, 5rem); min-height: 70vh; max-width: 44rem; }
+.mb-main h1 { font-size: clamp(2.3rem, 5vw, 3.4rem); margin: .4rem 0 1rem; }
+.mb-lede { color: var(--ink-soft); margin-bottom: 1.6rem; }
+
+.mb-form { display: flex; flex-direction: column; gap: 1.1rem; background: var(--band); border: 1px solid var(--line); border-radius: 14px; padding: clamp(1.4rem, 4vw, 2.2rem); }
+.mb-form .btn { align-self: flex-start; }
+.mb-error { color: #e58a76; min-height: 1.4em; margin: 0; font-size: .95rem; }
+.mb-ok { color: #8fb98b; }
+
+.mb-card { background: var(--band); border: 1px solid var(--line); border-radius: 16px; padding: clamp(1.4rem, 4vw, 2.2rem); margin-top: 1.4rem; }
+.mb-card-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.4rem; }
+.mb-pill { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; padding: .3rem .85rem; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); }
+.mb-pill.seated { background: var(--accent); color: #1c130e; }
+.mb-pill.completed { border-color: var(--ink-soft); color: var(--ink-soft); }
+.mb-pill.cancelled, .mb-pill.no_show { border-color: #d0654f; color: #e58a76; }
+.mb-when { color: var(--ink-soft); font-style: italic; font-family: var(--display); font-size: 1.25rem; }
+
+.mb-big { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 1.2rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--line); }
+.mb-label { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: .2rem; }
+.mb-value { font-family: var(--display); font-weight: 600; font-size: clamp(1.5rem, 4vw, 2.2rem); line-height: 1.15; color: var(--ink); }
+
+.mb-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1rem 1.5rem; margin: 1.3rem 0 0; }
+.mb-facts div { min-width: 0; }
+.mb-facts dt { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); }
+.mb-facts dd { margin: .15rem 0 0; overflow-wrap: anywhere; }
+.mb-hold { margin-top: 1.3rem; color: var(--ink-soft); font-size: .95rem; }
+
+.mb-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.5rem; }
+.mb-danger { color: #e58a76; border-color: rgba(208, 101, 79, .6); }
+.mb-danger:hover { color: #f0a08e; border-color: #d0654f; }
+.mb-confirm { margin-top: 1.2rem; padding: 1rem 1.2rem; border: 1px solid rgba(208, 101, 79, .5); border-radius: 12px; }
+.mb-confirm-row { display: flex; gap: .7rem; margin-top: .8rem; flex-wrap: wrap; }
+.mb-card .mb-error { margin-top: 1rem; }
+
+.mb-others { margin-top: 2.6rem; }
+.mb-others h2 { font-size: 1.7rem; margin-bottom: .8rem; }
+.mb-others ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.mb-others li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.mb-others li span { color: var(--ink-soft); font-size: .92rem; }
+.mb-others button { background: none; border: 0; color: var(--ink); font: inherit; cursor: pointer; text-align: left; padding: 0; }
+.mb-others button:hover { color: var(--accent); }
+
+.mb-foot { margin-top: 2.4rem; color: var(--ink-soft); display: flex; gap: .7rem; flex-wrap: wrap; font-size: .92rem; }
+.mb-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ink-soft); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.mb-link:hover { color: var(--accent); }
+
+.mb-footer { border-top: 1px solid var(--line); padding-block: 1.6rem; color: var(--ink-soft); font-size: .88rem; }
+
+@media (max-width: 34rem) {
+  .mb-big { grid-template-columns: 1fr 1fr; }
+  .mb-big > div:first-child { grid-column: 1 / -1; }
+}
